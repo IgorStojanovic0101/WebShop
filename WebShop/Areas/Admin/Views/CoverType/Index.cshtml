@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WebShop.Models.Category>
+﻿@model IEnumerable<WebShop.Models.CoverType>
 
 @{
     ViewData["Title"] = "Index";
@@ -7,7 +7,7 @@
 <div class="container p-3">
     <div class="row p-4">
         <div class="col-6">
-            <h2 class="text-primary">Category List</h2>
+            <h2 class="text-primary">Cover Types List</h2>
         </div>
         <div class="col-6 text-end">
             <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> &nbsp; Create New</a>
@@ -20,12 +20,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DisplayOrder)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDateTime)
-            </th>
+           
             <th></th>
         </tr>
     </thead>
@@ -35,12 +30,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DisplayOrder)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDateTime)
-            </td>
+          
             <td class="row">
 
                         <a asp-action="Edit" class="col-md-2 btn btn-success" asp-route-id="@item.Id">

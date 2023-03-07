@@ -11,7 +11,7 @@ namespace WebShop.Models
     {
         public int Id { get; set; }
 
-        [Display(Name = "Cover Type")]
+        [Display(Name = "Cover Type Name")]
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

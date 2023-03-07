@@ -59,7 +59,7 @@ namespace WebShop.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CoverType ct)
         {
-           
+
             if (ModelState.IsValid)
             {
                 _unitOfWork.CoverTypes.Add(ct);
@@ -77,10 +77,10 @@ namespace WebShop.Areas.Admin.Controllers
                 return NotFound();
             }
 
-          
+
             var category = _unitOfWork.CoverTypes.GetFirstOrDefault(x => x.Id == id);
             return View(category);
-            
+
         }
 
         // POST: Categories/Edit/5

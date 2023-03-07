@@ -2,8 +2,10 @@
 using System.Diagnostics;
 using WebShop.Models;
 
-namespace WebShop.Controllers
+namespace WebShop.Areas.Consumer.Controllers
 {
+    [Area("Consumer")]
+
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

@@ -10,9 +10,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace WebShop.Controllers
+namespace WebShop.Areas.Admin.Controllers
 {
-   // [Area("Admin")]
+     [Area("Admin")]
     public class CategoriesController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
