@@ -1,5 +1,6 @@
 ﻿using WebShop.Models;
 using Microsoft.EntityFrameworkCore;
+using WebShop.Models;
 
 namespace WebShop.Data
 {
@@ -11,5 +12,6 @@ namespace WebShop.Data
         }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CoverType> CoverTypes { get; set; }
+        public DbSet<Product> Products { get; set; }
     }
 }

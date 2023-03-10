@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebShop.Data;
+using WebShop.DataAccess.Repository;
 using WebShop.DataAccess.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
