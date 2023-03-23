@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace WebShop.DataAccess.Repository
 {
@@ -19,15 +20,23 @@ namespace WebShop.DataAccess.Repository
         {
             _db = db;
         }
-        public IEnumerable<Product> GetAllwithProperties()
+      /*  public IEnumerable<Product> GetAllwithProperties()
         {
             IQueryable<Product> query = dbSet;
             query = query.Include(nameof(Category));
             query = query.Include(nameof(CoverType));
             return query.ToList();
         }
+		public Product GetFirstOrDefaultWithProperties(Expression<Func<Product, bool>> filter)
+        {
+			IQueryable<Product> query = dbSet;
+			query = query.Where(filter);
+			query = query.Include(nameof(Category));
+			query = query.Include(nameof(CoverType));
+			return query.FirstOrDefault();
+		}*/
 
-        public void Update(Product obj)
+		public void Update(Product obj)
         {
             var objFromDb = _db.Products.FirstOrDefault(x => x.Id == obj.Id);
             if (objFromDb != null)

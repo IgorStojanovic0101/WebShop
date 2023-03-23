@@ -11,7 +11,16 @@ namespace WebShop.DataAccess.Repository.IRepository
         ICategoryRepository Categories { get; }
         ICoverTypeRepository CoverTypes { get; }
 
-       IProductRepository Products { get; }
-        void Save();
+         IProductRepository Products { get; }
+
+	     ICompanyRepository Companies { get; }
+
+        IApplicationUser ApplicationUsers { get; }
+        IShoppingCart ShoppingCarts { get; }
+
+        IOrderDetailsRepository OrderDetails { get; }
+        IOrderHeaderRepository OrderHeaders { get; }
+
+		void Save();
     }
 }

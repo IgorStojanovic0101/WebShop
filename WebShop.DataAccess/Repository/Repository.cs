@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using WebShop.Model.Models;
 
 namespace WebShop.DataAccess.Repository
 {
@@ -25,10 +26,23 @@ namespace WebShop.DataAccess.Repository
            dbSet.Add(entity);
         }
 
-        public IEnumerable<T> GetAll()
-        {
-            IQueryable<T> query = dbSet;
-            return query.ToList();
+        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null)
+        {				
+            var properties = typeof(T).GetProperties();
+            var includeList = properties.Where(p => p.PropertyType.IsClass && p.PropertyType != typeof(string)).ToArray();
+
+			IQueryable<T> query = dbSet;
+			query = query.Where(filter ?? (x => true));
+        
+			
+              
+			foreach (var propertyInfo in includeList)
+				query = query.Include(propertyInfo.Name);
+				
+             
+            
+		
+			return query;
          }
 
         public T GetFirstOrDefault(Expression<Func<T, bool>> filter)
@@ -36,7 +50,14 @@ namespace WebShop.DataAccess.Repository
 
             IQueryable<T> query = dbSet;
             query = query.Where(filter);
-            return query.FirstOrDefault();
+
+            if (query.Count() > 0)
+            {
+                var includeList = typeof(T).GetProperties().Where(p => p.PropertyType.IsClass && p.PropertyType != typeof(string));
+                foreach (var propertyInfo in includeList)
+                    query = query.Include(propertyInfo.Name);
+            }
+			return query.FirstOrDefault();
          }
 
         public void Remove(T entity)

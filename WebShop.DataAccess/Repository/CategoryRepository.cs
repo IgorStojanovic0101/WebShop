@@ -34,9 +34,9 @@ namespace WebShop.DataAccess.Repository
 
       
 
-        public void Update(Category category)
+        public void Update(Category obj)
         {
-           _db.Update(category);
+           _db.Update(obj);
         }
 
     }

@@ -2,16 +2,30 @@ using Microsoft.EntityFrameworkCore;
 using WebShop.Data;
 using WebShop.DataAccess.Repository;
 using WebShop.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using WebShop.Utility;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer( 
     builder.Configuration.GetConnectionString("DefaultConnection")
 ));
-builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.AddIdentity<IdentityUser,IdentityRole>().AddDefaultTokenProviders()
+	.AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = $"/Identity/Account/Login";
+    options.LogoutPath = $"/Identity/Account/Logout";
+    options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,9 +40,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
+
+app.UseAuthentication();;
 
 app.UseAuthorization();
-
+app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Consumer}/{controller=Home}/{action=Index}/{id?}");

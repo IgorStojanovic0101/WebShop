@@ -169,7 +169,7 @@ namespace WebShop.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var productList = _unitOfWork.Products.GetAllwithProperties();
+            var productList = _unitOfWork.Products.GetAll();
             return Json(new { data = productList }); 
         }
 

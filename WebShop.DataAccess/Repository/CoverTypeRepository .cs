@@ -21,9 +21,9 @@ namespace WebShop.DataAccess.Repository
         }
 
     
-        public void Update(CoverType ct)
+        public void Update(CoverType obj)
         {
-           _db.Update(ct);
+           _db.Update(obj);
         }
 
     }
