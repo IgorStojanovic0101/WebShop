@@ -21,7 +21,7 @@ namespace WebShop.Utility
 
 		public Task SendEmailAsync(string email, string subject, string htmlMessage)
 		{
-			//email = "olimpijac019@gmail.com";
+			
 			var emailToSend = new MimeMessage();
 			emailToSend.From.Add(MailboxAddress.Parse("hello@dotnetmastery.com"));
 			emailToSend.To.Add(MailboxAddress.Parse(email));
@@ -33,7 +33,7 @@ namespace WebShop.Utility
 			{
 				emailClient.CheckCertificateRevocation = false;
 				emailClient.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-			    emailClient.Authenticate("igor.stojanovic0101@gmail.com", "uehwrywkjvadjvrp");
+			 
 			    emailClient.Send(emailToSend);
 			    emailClient.Disconnect(true);
 			}
