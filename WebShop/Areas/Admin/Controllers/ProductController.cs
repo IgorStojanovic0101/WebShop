@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebShop.ViewModels;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+
 
 namespace WebShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class ProductController : Controller
-    {
+    public class ProductController : Base
+	{
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _hostEnvironment;
 
@@ -27,8 +29,35 @@ namespace WebShop.Areas.Admin.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            var list = _unitOfWork.Products.GetAll();
-            return View(list);
+			var product = new Product
+			{
+                Id = 5,
+				Title = "The Great Gatsby",
+				Description = "A classic novel by F. Scott Fitzgerald",
+				ISBN = "978-3-16-148410-0",
+				Author = "F. Scott Fitzgerald",
+				Price = 12.99,
+				ListPrice = 14.99,
+				Price50 = 10.99,
+                Price100 = 9.99,
+                CategoryId = 1,
+                CoverTypeId = 2
+            };
+		
+
+
+
+			string req = "New/Index4";
+            var listProduct = new List<Product>();
+            var id = 123; // example value
+            var requestBody = new { id };
+            var result =  await wsPost<Product,  Product>(req, product);
+            listProduct.Add(result);
+
+		
+
+			var list = _unitOfWork.Products.GetAll();
+            return View(listProduct);
         }
 
         // GET: Categories/Details/5

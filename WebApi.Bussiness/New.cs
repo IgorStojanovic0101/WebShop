@@ -28,8 +28,8 @@ namespace WebShop.Bussiness
         }
         public Product Method4(int BR)
         {
-            if (BR == 5)
-                return new Product { Author="Igor je genije"};
+            if (BR > 5)
+                return new Product { Title = "Igor je genije"};
             else
                 return new Product();
 
@@ -37,9 +37,9 @@ namespace WebShop.Bussiness
         public Product Method5(Product Product)
         {
             if (Product.Id > 0)
-                return new Product { Author = "Igor je genije veliki" };
+                return this.Method4(7);
             else
-                return new Product();
+                return new Product { Title = "Prazno" };
 
         }
         public Product Method6(CoverType CT, Product test)
