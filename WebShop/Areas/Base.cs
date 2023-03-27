@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
@@ -42,8 +43,30 @@ namespace WebShop.Areas
             
         }
 
+        public async Task<Treturn> wsGet<Treturn>(string requestUri)
+        {
+            //HttpClientHandler handler = new HttpClientHandler();
+            //handler.Credentials = getWsCredentials(MC);
 
-     
+            try
+            {
+                var response = await _HttpClient.GetStringAsync(requestUri);
+                return JsonConvert.DeserializeObject<Treturn>(response);
+
+            }
+            catch (AggregateException ex)
+            {
+                //For reference: json object string lentgh is ~269700 when posting to method DLSPTaddImagesLPApp
+                if (ex.InnerExceptions.Any(x => x is TaskCanceledException))
+                {
+                    return default(Treturn);
+                }
+
+                throw ex;
+            }
+            catch (Exception ex) { throw ex; }
+        }
+
 
 
 

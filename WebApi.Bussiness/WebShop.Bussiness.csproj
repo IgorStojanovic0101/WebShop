@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WebShop.DataAccess\WebShop.DataAccess.csproj" />
     <ProjectReference Include="..\WebShop.Model\WebShop.Model.csproj" />
   </ItemGroup>
 

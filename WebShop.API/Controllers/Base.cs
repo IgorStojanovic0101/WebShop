@@ -1,17 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using System.Reflection;
-
+using WebShop.DataAccess.Repository.IRepository;
 
 namespace WebShop.API.Controllers
 {
   
     public class Base<T> : ControllerBase where T : class, new()
     {
-       
+        private IUnitOfWork unitOfWork;
+
+        public Base(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         public R Call<R>(Expression<Func<T, R>> value)
         {
-            var instance = new T();
+            var instance = (T)Activator.CreateInstance(typeof(T), unitOfWork);
+
 
             var instanceExpression = Expression.Constant(instance, typeof(T));
 

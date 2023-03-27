@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WebShop.DataAccess\WebShop.DataAccess.csproj" />
+    <ProjectReference Include="..\WebApi.Bussiness\WebShop.Bussiness.csproj" />
   </ItemGroup>
 
 </Project>
