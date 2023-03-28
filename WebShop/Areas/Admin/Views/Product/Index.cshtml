@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WebShop.Models.Product>
+﻿@model IEnumerable<WebShop.Models.ProductModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -42,30 +42,11 @@
             <th></th>
         </tr>
     </thead>
-      <tbody>
-    @foreach (var item in Model) {
-        <tr>
-            <td>
-               @Html.DisplayFor(modelItem => item.Title)
-            </td>
 
-            <td>
-                @Html.DisplayFor(modelItem => item.ISBN)
-            </td> 
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author)
-            </td>
-                 
-        </tr>
-    }
-    </tbody>
 </table>
 </div>
 
 @section Scripts
 {
-   @*<script src ="~/js/product/product.js"></script>*@
+   <script src ="~/js/product/product.js"></script>
 }

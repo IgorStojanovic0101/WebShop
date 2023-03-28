@@ -212,7 +212,7 @@ namespace WebShop.Areas.Consumer.Controllers
 		}
 		public IActionResult OrderConfirmation(int id)
 		{
-			OrderHeader orderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == id);
+			OrderHeaderModel orderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == id);
 			if (orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment)
 			{
 				var service = new SessionService();

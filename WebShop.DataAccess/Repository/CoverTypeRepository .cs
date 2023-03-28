@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace WebShop.DataAccess.Repository
 {
-    public class CoverTypeRepository : Repository<CoverType>, ICoverTypeRepository
+    public class CoverTypeRepository : Repository<CoverTypeModel>, ICoverTypeRepository
     {
         private ApplicationDbContext _db;
 
@@ -21,7 +21,7 @@ namespace WebShop.DataAccess.Repository
         }
 
     
-        public void Update(CoverType obj)
+        public void Update(CoverTypeModel obj)
         {
            _db.Update(obj);
         }

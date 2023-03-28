@@ -8,149 +8,132 @@ using WebShop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-
+using WebShop.Utility;
+using WebShop.Model.Models;
 
 namespace WebShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CoverTypeController : Controller
+    public class CoverTypeController : Base
     {
-        private readonly IUnitOfWork _unitOfWork;
+     
 
-        public CoverTypeController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
-        // GET: Categories
+       
+       
         public async Task<IActionResult> Index()
         {
-            var list = _unitOfWork.CoverTypes.GetAll();
+            var list = await wsGet<List<CoverTypeModel>>(SystemUrls.CoverType.GetCoverTypes);
             return View(list);
         }
 
-        // GET: Categories/Details/5
+     
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _unitOfWork.CoverTypes.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var category = _unitOfWork.CoverTypes.GetFirstOrDefault(x => x.Id == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
 
-            return View(category);
+            var exist = await wsPost<bool, int>(SystemUrls.CoverType.CoverTypeExist, id.Value);
+
+
+            if (!exist)
+                return NotFound();
+            else
+            {
+                var obj = await wsPost<CoverTypeModel, int>(SystemUrls.CoverType.GetCoverTypeById, id.Value);
+                return View(obj);
+            }
         }
 
-        // GET: Categories/Create
+      
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+      
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CoverType ct)
+        public async Task<IActionResult> Create(CoverTypeModel obj)
         {
 
             if (ModelState.IsValid)
             {
-                _unitOfWork.CoverTypes.Add(ct);
-                _unitOfWork.Save();
+                await wsPost<ReturnModel, CoverTypeModel>(SystemUrls.CoverType.CreateCoverType, obj);
                 return RedirectToAction(nameof(Index));
             }
-            return View(ct);
+            return View(obj);
         }
 
-        // GET: Categories/Edit/5
+       
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _unitOfWork.CoverTypes.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
 
-            var category = _unitOfWork.CoverTypes.GetFirstOrDefault(x => x.Id == id);
-            return View(category);
+            var exist = await wsPost<bool, int>(SystemUrls.CoverType.CoverTypeExist, id.Value);
+
+
+            if (!exist)
+                return NotFound();
+            else
+            {
+                var obj = await wsPost<CoverTypeModel, int>(SystemUrls.CoverType.GetCoverTypeById, id.Value);
+                return View(obj);
+            }
 
         }
 
-        // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] CoverType ct)
+        public async Task<IActionResult> Edit(int id,  CoverTypeModel obj)
         {
-            if (id != ct.Id)
+            if (id != obj.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _unitOfWork.CoverTypes.Update(ct);
-                    _unitOfWork.Save();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_unitOfWork.Categories.CategoryExist(ct.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await wsPost<ReturnModel, CoverTypeModel>(SystemUrls.CoverType.UpdateCoverType, obj);
                 return RedirectToAction(nameof(Index));
             }
-            return View(ct);
+            return View(obj);
         }
 
         // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _unitOfWork.CoverTypes.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var coverType = _unitOfWork.CoverTypes.GetFirstOrDefault(m => m.Id == id);
-            if (coverType == null)
-            {
-                return NotFound();
-            }
 
-            return View(coverType);
+            var exist = await wsPost<bool, int>(SystemUrls.CoverType.CoverTypeExist, id.Value);
+
+
+            if (!exist)
+                return NotFound();
+            else
+            {
+                var obj = await wsPost<CoverTypeModel, int>(SystemUrls.CoverType.GetCoverTypeById, id.Value);
+                return View(obj);
+            }
         }
 
-        // POST: Categories/Delete/5
+        
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_unitOfWork.CoverTypes.GetAll() == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.CoverType'  is null.");
-            }
-            // var category = await _context.Categories.FindAsync(id);
-            var coverType = _unitOfWork.CoverTypes.GetFirstOrDefault(x => x.Id == id);
-            if (coverType != null)
-            {
-                _unitOfWork.CoverTypes.Remove(coverType);
-            }
-            _unitOfWork.Save();
+            var returnModel = await wsPost<ReturnModel, int>(SystemUrls.CoverType.DeleteCoverType, id);
             // await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

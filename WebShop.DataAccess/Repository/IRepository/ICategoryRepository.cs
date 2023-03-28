@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace WebShop.DataAccess.Repository.IRepository
 {
-    public interface ICategoryRepository : IRepository<Category>
+    public interface ICategoryRepository : IRepository<CategoryModel>
     {
-        void Update(Category obj);
+        void Update(CategoryModel obj);
 
 
         bool CategoryExist(int id);

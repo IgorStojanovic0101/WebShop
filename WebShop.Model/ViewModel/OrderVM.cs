@@ -9,7 +9,7 @@ namespace WebShop.Model.ViewModel
 {
 	public class OrderVM
 	{
-		public OrderHeader OrderHeader { get; set; }
+		public OrderHeaderModel OrderHeader { get; set; }
 		public IEnumerable<OrderDetail> OrderDetail { get; set; }
 	}
 }

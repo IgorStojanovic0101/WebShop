@@ -10,43 +10,43 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebShop.ViewModels;
 using WebShop.Model.Models;
+using WebShop.Utility;
 
 namespace WebShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CompanyController : Controller
+    public class CompanyController : Base
     {
-        private readonly IUnitOfWork _unitOfWork;
       
-
-        public CompanyController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-          
-        }
+      
 
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            var list = _unitOfWork.Companies.GetAll();
+            var list = await wsGet<List<CompanyModel>>(SystemUrls.Company.GetCompanies);
             return View(list);
         }
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _unitOfWork.Companies.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var obj = _unitOfWork.Companies.GetFirstOrDefault(x => x.Id == id);
-            if (obj == null)
-            {
+
+            var exist = await wsPost<bool, int>(SystemUrls.Company.CompanyExist, id.Value);
+
+
+            if (!exist)
                 return NotFound();
+            else
+            {
+                var obj = await wsPost<CompanyModel, int>(SystemUrls.Company.GetCompanyById, id.Value);
+                return View(obj);
             }
 
-            return View(obj);
         }
      
       
@@ -55,18 +55,14 @@ namespace WebShop.Areas.Admin.Controllers
             return View();
         }
 
-        // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Company obj)
+        public async Task<IActionResult> Create(CompanyModel obj)
         {
 
             if (ModelState.IsValid)
             {
-                _unitOfWork.Companies.Add(obj);
-                _unitOfWork.Save();
+                await wsPost<ReturnModel, CompanyModel>(SystemUrls.Company.CreateCompany, obj);
                 return RedirectToAction(nameof(Index));
             }
             return View(obj);
@@ -75,25 +71,31 @@ namespace WebShop.Areas.Admin.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _unitOfWork.Companies.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
 
-            var obj = _unitOfWork.Companies.GetFirstOrDefault(x => x.Id == id);
-            return View(obj);
+            var exist = await wsPost<bool, int>(SystemUrls.Company.CompanyExist, id.Value);
+
+
+            if (!exist)
+                return NotFound();
+            else
+            {
+                var obj = await wsPost<CompanyModel, int>(SystemUrls.Company.GetCompanyById, id.Value);
+                return View(obj);
+            }
 
         }
 
-        // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Company obj)
+        public async Task<IActionResult> Edit(int id, CompanyModel obj)
         {
             if (id != obj.Id)
             {
@@ -102,11 +104,7 @@ namespace WebShop.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-              
-                    _unitOfWork.Companies.Update(obj);
-                    _unitOfWork.Save();
-               
-             
+                await wsPost<ReturnModel, CompanyModel>(SystemUrls.Company.UpdateCompany, obj);
                 return RedirectToAction(nameof(Index));
             }
             return View(obj);
@@ -117,47 +115,41 @@ namespace WebShop.Areas.Admin.Controllers
       
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var List = _unitOfWork.Companies.GetAll();
+            var List = await wsGet<List<CompanyModel>>(SystemUrls.Company.GetCompanies);
             return Json(new { data = List }); 
         }
 
 
 
-        // GET: Categories/Delete/5
+      
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _unitOfWork.Companies.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var obj = _unitOfWork.Companies.GetFirstOrDefault(m => m.Id == id);
-            if (obj == null)
-            {
-                return NotFound();
-            }
 
-            return View(obj);
+            var exist = await wsPost<bool, int>(SystemUrls.Company.CompanyExist, id.Value);
+
+
+            if (!exist)
+                return NotFound();
+            else
+            {
+                var obj = await wsPost<CompanyModel, int>(SystemUrls.Company.GetCompanyById, id.Value);
+                return View(obj);
+            }
         }
 
-        // POST: Categories/Delete/5
+       
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_unitOfWork.Companies.GetAll() == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Companies'  is null.");
-            }
-            // var category = await _context.Categories.FindAsync(id);
-            var obj = _unitOfWork.Companies.GetFirstOrDefault(x => x.Id == id);
-            if (obj != null)
-            {
-                _unitOfWork.Companies.Remove(obj);
-            }
-            _unitOfWork.Save();
+            var returnModel = await wsPost<ReturnModel, int>(SystemUrls.Company.DeleteCompany, id);
             // await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

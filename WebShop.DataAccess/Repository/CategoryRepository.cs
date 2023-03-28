@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace WebShop.DataAccess.Repository
 {
-    public class CategoryRepository : Repository<Category>, ICategoryRepository
+    public class CategoryRepository : Repository<CategoryModel>, ICategoryRepository
     {
         private ApplicationDbContext _db;
 
@@ -25,7 +25,7 @@ namespace WebShop.DataAccess.Repository
              return GetAll().Any(x => x.Id == id);
             
         }
-        public Category FindCategory(int id)
+        public CategoryModel FindCategory(int id)
         {
 
             return GetFirstOrDefault(x => x.Id == id);
@@ -34,7 +34,7 @@ namespace WebShop.DataAccess.Repository
 
       
 
-        public void Update(Category obj)
+        public void Update(CategoryModel obj)
         {
            _db.Update(obj);
         }

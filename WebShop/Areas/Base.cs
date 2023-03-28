@@ -45,8 +45,7 @@ namespace WebShop.Areas
 
         public async Task<Treturn> wsGet<Treturn>(string requestUri)
         {
-            //HttpClientHandler handler = new HttpClientHandler();
-            //handler.Credentials = getWsCredentials(MC);
+           
 
             try
             {

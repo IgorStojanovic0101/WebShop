@@ -13,7 +13,7 @@ using WebShop.Model.Models;
 
 namespace WebShop.DataAccess.Repository
 {
-    public class OrderHeaderRepository : Repository<OrderHeader>, IOrderHeaderRepository
+    public class OrderHeaderRepository : Repository<OrderHeaderModel>, IOrderHeaderRepository
 	{
         private ApplicationDbContext _db;
 
@@ -38,7 +38,7 @@ namespace WebShop.DataAccess.Repository
 			return query.FirstOrDefault();
 		}*/
 
-		public void Update(OrderHeader obj)
+		public void Update(OrderHeaderModel obj)
         {
            _db.Update(obj);
         }

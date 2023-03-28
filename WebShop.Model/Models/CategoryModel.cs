@@ -2,7 +2,7 @@
 
 namespace WebShop.Models
 {
-    public class Category
+    public class CategoryModel
     {
         [Key]
         public int Id { get; set; }

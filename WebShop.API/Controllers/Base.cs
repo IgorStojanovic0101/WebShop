@@ -8,16 +8,15 @@ namespace WebShop.API.Controllers
   
     public class Base<T> : ControllerBase where T : class, new()
     {
-        private IUnitOfWork unitOfWork;
-
-        public Base(IUnitOfWork unitOfWork)
+        private List<object> args;
+        public Base(List<object> objs)
         {
-            this.unitOfWork = unitOfWork;
+            this.args = objs;
         }
 
         public R Call<R>(Expression<Func<T, R>> value)
         {
-            var instance = (T)Activator.CreateInstance(typeof(T), unitOfWork);
+            var instance = (T)Activator.CreateInstance(typeof(T), args);
 
 
             var instanceExpression = Expression.Constant(instance, typeof(T));

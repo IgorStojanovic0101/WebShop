@@ -12,13 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
 ));
+/*
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<AddFromBodyFilter>();
 }).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-});
+});*/
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

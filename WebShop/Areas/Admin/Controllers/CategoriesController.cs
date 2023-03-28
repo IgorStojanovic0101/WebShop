@@ -8,56 +8,54 @@ using WebShop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-
+using WebShop.Utility;
+using WebShop.DataAccess.Repository;
+using WebShop.Model.Models;
 
 namespace WebShop.Areas.Admin.Controllers
 {
      [Area("Admin")]
-    public class CategoriesController : Controller
+    public class CategoriesController : Base
     {
-        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoriesController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
-        // GET: Categories
+       
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var list = _unitOfWork.Categories.GetAll();
+           
+            var list = await wsGet<List<CategoryModel>>(SystemUrls.Category.GetCategories);
             return View(list);
         }
 
-        // GET: Categories/Details/5
+       
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _unitOfWork.Categories.GetAll() == null)
-            {
+            if (id == null)
                 return NotFound();
-            }
+            
 
-            var category = _unitOfWork.Categories.GetFirstOrDefault(x => x.Id == id);
-            if (category == null)
+            var category_exist = await wsPost<bool, int>(SystemUrls.Category.CategoryExist, id.Value);
+
+
+            if (!category_exist)
+                return NotFound();  
+            else
             {
-                return NotFound();
+                var category = await wsPost<CategoryModel, int>(SystemUrls.Category.GetCategoryById, id.Value);
+                return View(category);
             }
-
-            return View(category);
         }
 
-        // GET: Categories/Create
+      
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+      
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Category category)
+        public async Task<IActionResult> Create(CategoryModel category)
         {
             if (category.Name == category.DisplayOrder.ToString())
             {
@@ -65,8 +63,7 @@ namespace WebShop.Areas.Admin.Controllers
             }
             if (ModelState.IsValid)
             {
-                _unitOfWork.Categories.Add(category);
-                _unitOfWork.Save();
+                await wsPost<ReturnModel, CategoryModel>(SystemUrls.Category.CreateCategory, category);
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
@@ -75,31 +72,29 @@ namespace WebShop.Areas.Admin.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _unitOfWork.Categories.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var category_exist = _unitOfWork.Categories.CategoryExist(id.Value);
+            var category_exist = await wsPost<bool, int>(SystemUrls.Category.CategoryExist, id.Value);
 
 
-            if (category_exist == null)
+            if (!category_exist)
             {
                 return NotFound();
             }
             else
             {
-                var category = _unitOfWork.Categories.GetFirstOrDefault(x => x.Id == id);
+                var category = await wsPost<CategoryModel, int>(SystemUrls.Category.GetCategoryById, id.Value);
                 return View(category);
             }
         }
 
-        // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,DisplayOrder,CreatedDateTime")] Category category)
+        public async Task<IActionResult> Edit(int id, CategoryModel category)
         {
             if (id != category.Id)
             {
@@ -108,60 +103,45 @@ namespace WebShop.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _unitOfWork.Categories.Update(category);
-                    _unitOfWork.Save();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_unitOfWork.Categories.CategoryExist(category.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+              
+                var returnModel = await wsPost<ReturnModel, CategoryModel>(SystemUrls.Category.UpdateCategory, category);
+             
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
         }
 
-        // GET: Categories/Delete/5
+      
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _unitOfWork.Categories.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var category = _unitOfWork.Categories.GetFirstOrDefault(m => m.Id == id);
-            if (category == null)
+            var category_exist = await wsPost<bool, int>(SystemUrls.Category.CategoryExist, id.Value);
+
+
+            if (!category_exist)
             {
                 return NotFound();
             }
+            else
+            {
+                var category = await wsPost<CategoryModel, int>(SystemUrls.Category.GetCategoryById, id.Value);
+                return View(category);
+            }
 
-            return View(category);
         }
 
-        // POST: Categories/Delete/5
+      
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_unitOfWork.Categories.GetAll() == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Categories'  is null.");
-            }
-            // var category = await _context.Categories.FindAsync(id);
-            var category = _unitOfWork.Categories.GetFirstOrDefault(x => x.Id == id);
-            if (category != null)
-            {
-                _unitOfWork.Categories.Remove(category);
-            }
-            _unitOfWork.Save();
+         
+          
+           var returnModel = await wsPost<ReturnModel, int>(SystemUrls.Category.DeleteCategory, id);
             // await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

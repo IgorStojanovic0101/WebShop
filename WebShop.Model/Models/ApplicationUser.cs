@@ -23,7 +23,7 @@ namespace WebShop.Model.Models
 		public int? CompanyId { get; set; }
 		[ForeignKey("CompanyId")]
 		[ValidateNever]
-		public Company Company { get; set;}
+		public CompanyModel Company { get; set;}
 
     }
 }

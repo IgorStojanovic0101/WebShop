@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 
 namespace WebShop.DataAccess.Repository
 {
-    public class ProductRepository : Repository<Product>, IProductRepository
+    public class ProductRepository : Repository<ProductModel>, IProductRepository
     {
         private ApplicationDbContext _db;
 
@@ -36,7 +36,7 @@ namespace WebShop.DataAccess.Repository
 			return query.FirstOrDefault();
 		}*/
 
-		public void Update(Product obj)
+		public void Update(ProductModel obj)
         {
             var objFromDb = _db.Products.FirstOrDefault(x => x.Id == obj.Id);
             if (objFromDb != null)

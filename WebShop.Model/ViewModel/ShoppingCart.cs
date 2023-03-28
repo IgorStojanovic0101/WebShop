@@ -16,7 +16,7 @@ namespace WebShop.Model.ViewModel
         public int ProductId { get; set; }
         [ForeignKey("ProductId")]
         [ValidateNever]
-        public Product Product { get; set; }
+        public ProductModel Product { get; set; }
      
         public int Count { get; set; }
 

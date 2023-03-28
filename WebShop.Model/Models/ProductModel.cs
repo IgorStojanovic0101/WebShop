@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +11,7 @@ using WebShop.Models;
 
 namespace WebShop.Models
 {
-    public class Product
+    public class ProductModel
     {
         public int Id { get; set; }
         [Required]
@@ -41,13 +43,17 @@ namespace WebShop.Models
         [Display(Name = "Category")]
         public int CategoryId { get; set; }
         [ValidateNever]
-        public Category Category { get; set; }
+        public CategoryModel Category { get; set; }
         [Required]
         [Display(Name = "Cover Type")]
 
         public int CoverTypeId { get; set; }
         [ValidateNever]
-        public CoverType CoverType { get; set; } 
+        public CoverTypeModel CoverType { get; set; }
+
+        [NotMapped]
+        [ValidateNever]
+        public IFormFile? file { get; set; }
 
 
 

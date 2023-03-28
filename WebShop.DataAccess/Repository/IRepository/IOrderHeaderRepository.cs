@@ -8,9 +8,9 @@ using System.Linq.Expressions;
 
 namespace WebShop.DataAccess.Repository.IRepository
 {
-    public interface IOrderHeaderRepository : IRepository<OrderHeader>
+    public interface IOrderHeaderRepository : IRepository<OrderHeaderModel>
     {
-        void Update(OrderHeader obj);
+        void Update(OrderHeaderModel obj);
 
         void UpdateStatus(int id, string orderStatus, string? paymentStatus = null);
 

@@ -19,7 +19,7 @@ namespace WebShop.ViewModels
 
         public IEnumerable<SelectListItem> CoverTypeList { get; set; }
 
-        public Product Product { get; set; }
+        public ProductModel Product { get; set; }
 
 
     }

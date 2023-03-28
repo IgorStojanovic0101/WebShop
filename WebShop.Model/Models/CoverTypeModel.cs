@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebShop.Models
 {
-    public class CoverType
+    public class CoverTypeModel
     {
         public int Id { get; set; }
 

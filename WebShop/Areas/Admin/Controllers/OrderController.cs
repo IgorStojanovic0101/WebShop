@@ -14,7 +14,7 @@ namespace WebShop.Areas.Admin.Controllers
 {
 	[Area("Admin")]
 	[Authorize]
-	public class OrderController : Controller
+	public class OrderController : Base
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IEmailSender _emailSender;
@@ -180,7 +180,7 @@ namespace WebShop.Areas.Admin.Controllers
 
 		public IActionResult PaymentConfirmation(int orderHeaderid)
 		{
-			OrderHeader orderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == orderHeaderid);
+			OrderHeaderModel orderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == orderHeaderid);
 			if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
 			{
 				var service = new SessionService();
@@ -197,19 +197,22 @@ namespace WebShop.Areas.Admin.Controllers
 
 		#region API CALLS
 		[HttpGet]
-		public IActionResult GetAll(string status)
+		public async Task<IActionResult> GetAll(string status)
 		{
-			IEnumerable<OrderHeader> orderHeaders;
+			IEnumerable<OrderHeaderModel> orderHeaders;
 
-			if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
+			
+
+
+            if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
 			{
-				orderHeaders = _unitOfWork.OrderHeaders.GetAll();
-			}
+				orderHeaders = await wsGet<IEnumerable<OrderHeaderModel>>(SystemUrls.Order.GetOrders);
+            }
 			else
 			{
 				var claimsIdentity = (ClaimsIdentity)User.Identity;
 				var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-				orderHeaders = _unitOfWork.OrderHeaders.GetAll(u => u.ApplicationUserId == claim.Value);
+				orderHeaders =   wsGet<IEnumerable<OrderHeaderModel>>(SystemUrls.Order.GetOrders).Result.Where(u => u.ApplicationUserId == claim.Value);
 			}
 
 			switch (status)

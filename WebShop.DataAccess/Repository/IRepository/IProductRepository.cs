@@ -8,9 +8,9 @@ using System.Linq.Expressions;
 
 namespace WebShop.DataAccess.Repository.IRepository
 {
-    public interface IProductRepository : IRepository<Product>
+    public interface IProductRepository : IRepository<ProductModel>
     {
-        void Update(Product obj);
+        void Update(ProductModel obj);
 
        // IEnumerable<Product> GetAllwithProperties();
 

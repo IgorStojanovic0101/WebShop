@@ -15,7 +15,7 @@ using WebShop.Model.Models;
 
 namespace WebShop.Models
 	{
-		public class OrderHeader
+		public class OrderHeaderModel
 		{
 			public int Id { get; set; }
 			public string ApplicationUserId { get; set; }

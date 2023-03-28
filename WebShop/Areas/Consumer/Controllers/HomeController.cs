@@ -23,7 +23,7 @@ namespace WebShop.Areas.Consumer.Controllers
 
         public IActionResult Index()
         {
-            IEnumerable<Product> productList = _unitOfWork.Products.GetAll();
+            IEnumerable<ProductModel> productList = _unitOfWork.Products.GetAll();
             return View(productList);
         }
         public IActionResult Details(int productId)

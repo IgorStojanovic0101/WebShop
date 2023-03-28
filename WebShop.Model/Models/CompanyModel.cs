@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebShop.Models
 {
-	public class Company
+	public class CompanyModel
 	{
 		public int Id { get; set; }
 		[Required]

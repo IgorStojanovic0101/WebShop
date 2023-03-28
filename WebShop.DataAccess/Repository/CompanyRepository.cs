@@ -12,7 +12,7 @@ using WebShop.Model.Models;
 
 namespace WebShop.DataAccess.Repository
 {
-    public class CompanyRepository : Repository<Company>, ICompanyRepository
+    public class CompanyRepository : Repository<CompanyModel>, ICompanyRepository
     {
         private ApplicationDbContext _db;
 
@@ -22,7 +22,7 @@ namespace WebShop.DataAccess.Repository
         }
 
     
-        public void Update(Company obj)
+        public void Update(CompanyModel obj)
         {
            _db.Update(obj);
         }

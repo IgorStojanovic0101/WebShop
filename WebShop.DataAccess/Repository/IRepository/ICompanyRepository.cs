@@ -8,9 +8,9 @@ using WebShop.Model.Models;
 
 namespace WebShop.DataAccess.Repository.IRepository
 {
-    public interface ICompanyRepository : IRepository<Company>
+    public interface ICompanyRepository : IRepository<CompanyModel>
     {
-        void Update(Company obj);
+        void Update(CompanyModel obj);
 
 
     }

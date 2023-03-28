@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace WebShop.DataAccess.Repository.IRepository
 {
-    public interface ICoverTypeRepository : IRepository<CoverType>
+    public interface ICoverTypeRepository : IRepository<CoverTypeModel>
     {
-        void Update(CoverType obj);
+        void Update(CoverTypeModel obj);
 
 
     }

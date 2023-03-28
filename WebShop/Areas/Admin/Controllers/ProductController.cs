@@ -11,58 +11,61 @@ using Microsoft.EntityFrameworkCore;
 using WebShop.ViewModels;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using WebShop.Utility;
+using WebShop.Model.Models;
 
 namespace WebShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class ProductController : Base
 	{
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IWebHostEnvironment _hostEnvironment;
+       // private readonly IWebHostEnvironment _hostEnvironment;
 
-        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
+        public ProductController()
         {
-            _unitOfWork = unitOfWork;
-            _hostEnvironment = hostEnvironment;
+          //  _hostEnvironment = hostEnvironment;
         }
 
-        // GET: Categories
+    
         public async Task<IActionResult> Index()
         {
-			
-            var result =  await wsGet<List<Product>>(SystemUrls.Product.GetProducts);
+
+            var result = new List<ProductModel>();
      
             return View(result);
         }
 
-        // GET: Categories/Details/5
+      
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _unitOfWork.Products.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var obj = _unitOfWork.Products.GetFirstOrDefault(x => x.Id == id);
-            if (obj == null)
-            {
-                return NotFound();
-            }
 
-            return View(obj);
+            var exist = await wsPost<bool, int>(SystemUrls.Product.ProductExist, id.Value);
+
+
+            if (!exist)
+                return NotFound();
+            else
+            {
+                var obj = await wsPost<ProductModel, int>(SystemUrls.Product.GetProductById, id.Value);
+                return View(obj);
+            }
         }
-        public IActionResult Upsert(int? id)
+        public async Task<IActionResult> Upsert(int? id)
         {
 
             var productVM = new ProductVM()
             {
                 Product = new(),
-                CategoryList = _unitOfWork.Categories.GetAll().Select(x => new SelectListItem
+                CategoryList =  wsGet<List<CategoryModel>>(SystemUrls.Category.GetCategories).Result.Select(x => new SelectListItem
                 {
                     Text = x.Name,
                     Value = x.Id.ToString()
                 }),
-                CoverTypeList =  _unitOfWork.CoverTypes.GetAll().Select(x => new SelectListItem
+                CoverTypeList =  wsGet<List<CoverTypeModel>>(SystemUrls.CoverType.GetCoverTypes).Result.Select(x => new SelectListItem
                 {
                     Text = x.Name,
                     Value = x.Id.ToString()
@@ -75,7 +78,7 @@ namespace WebShop.Areas.Admin.Controllers
             }
             else
             {
-                productVM.Product = _unitOfWork.Products.GetFirstOrDefault(x => x.Id == id);
+                productVM.Product = await wsPost<ProductModel, int>(SystemUrls.Product.GetProductById, id.Value);
                 return View(nameof(Edit), productVM);
 
             }
@@ -86,40 +89,42 @@ namespace WebShop.Areas.Admin.Controllers
             return View();
         }
 
-        // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product obj)
+        public async Task<IActionResult> Create(ProductModel obj)
         {
 
             if (ModelState.IsValid)
             {
-                _unitOfWork.Products.Add(obj);
-                _unitOfWork.Save();
+                await wsPost<ReturnModel, ProductModel>(SystemUrls.Product.UpdateProduct, obj);
                 return RedirectToAction(nameof(Index));
             }
             return View(obj);
         }
 
-        // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _unitOfWork.Products.GetAll() == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
 
-            var obj = _unitOfWork.Products.GetFirstOrDefault(x => x.Id == id);
-            return View(obj);
+            var exist = await wsPost<bool, int>(SystemUrls.Product.ProductExist, id.Value);
+
+
+            if (!exist)
+                return NotFound();
+            else
+            {
+                var obj = await wsPost<ProductModel, int>(SystemUrls.Product.GetProductById, id.Value);
+                return View(obj);
+            }
 
         }
 
-        // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Upsert(ProductVM obj, IFormFile? file)
@@ -127,7 +132,9 @@ namespace WebShop.Areas.Admin.Controllers
          
             if (ModelState.IsValid)
             {
-                string wwwRootPath = _hostEnvironment.WebRootPath;
+                obj.Product.file = file;
+
+             /*   string wwwRootPath = _hostEnvironment.WebRootPath;
                 if(file!=null)
                 {
                     string filename = Guid.NewGuid().ToString();
@@ -149,16 +156,19 @@ namespace WebShop.Areas.Admin.Controllers
                     }
                     obj.Product.ImageUrl = @"\images\products\" + filename + extension;
                 }
+             */
                 if (obj.Product.Id != 0)
                 {
-                    _unitOfWork.Products.Update(obj.Product);
+                    await wsPost<ReturnModel, ProductModel>(SystemUrls.Product.UpdateProduct, obj.Product);
+
                 }
                 else
                 {
-                    _unitOfWork.Products.Add(obj.Product);
+                    await wsPost<ReturnModel, ProductModel>(SystemUrls.Product.CreateProduct, obj.Product);
+
 
                 }
-                _unitOfWork.Save();
+              
 
                 return RedirectToAction("Index");
             }
@@ -171,36 +181,20 @@ namespace WebShop.Areas.Admin.Controllers
         #region
 
         [HttpGet]
-        public IActionResult GetAll()
+        public  async Task<IActionResult> GetAll()
         {
-            var productList = _unitOfWork.Products.GetAll();
+            var productList = await wsGet<List<ProductModel>>(SystemUrls.Product.GetProducts);
             return Json(new { data = productList }); 
         }
 
 
         [HttpDelete]
         
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
-          
-            var obj = _unitOfWork.Products.GetFirstOrDefault(x => x.Id == id);
-            if (obj == null)
-            {
-                return Json(new { success = false, messege = "Error while deleting" });
 
-            }
-            if (obj.ImageUrl != null)
-            {
-                var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, obj.ImageUrl.TrimStart('\\'));
-                if (System.IO.File.Exists(oldImagePath))
-                {
-                    System.IO.File.Delete(oldImagePath);
-                }
-            }
-            
-            _unitOfWork.Products.Remove(obj);
-            _unitOfWork.Save();
-            // await _context.SaveChangesAsync();
+            var returnModel = await wsPost<ReturnModel, int>(SystemUrls.Product.DeleteProduct, id.Value);
+         
             return Json(new { success = true, messege = "Delete Sucessful" });
         }
 
