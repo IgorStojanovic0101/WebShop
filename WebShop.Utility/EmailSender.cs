@@ -34,7 +34,7 @@ namespace WebShop.Utility
 				emailClient.CheckCertificateRevocation = false;
 				emailClient.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
 			 
-			    emailClient.Send(emailToSend);
+			  //  emailClient.Send(emailToSend);
 			    emailClient.Disconnect(true);
 			}
 

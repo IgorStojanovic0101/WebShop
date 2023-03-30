@@ -13,7 +13,7 @@ using WebShop.Model.Models;
 
 namespace WebShop.DataAccess.Repository
 {
-    public class OrderDetailsRepository : Repository<OrderDetail>, IOrderDetailsRepository
+    public class OrderDetailsRepository : Repository<OrderDetailModel>, IOrderDetailsRepository
     {
         private ApplicationDbContext _db;
 
@@ -30,7 +30,7 @@ namespace WebShop.DataAccess.Repository
             return query.AsEnumerable();
         }*/
 
-        public void Update(OrderDetail obj)
+        public void Update(OrderDetailModel obj)
         {
            _db.Update(obj);
         }

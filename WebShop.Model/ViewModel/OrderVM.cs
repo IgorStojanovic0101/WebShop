@@ -10,6 +10,6 @@ namespace WebShop.Model.ViewModel
 	public class OrderVM
 	{
 		public OrderHeaderModel OrderHeader { get; set; }
-		public IEnumerable<OrderDetail> OrderDetail { get; set; }
+		public IEnumerable<OrderDetailModel> OrderDetail { get; set; }
 	}
 }

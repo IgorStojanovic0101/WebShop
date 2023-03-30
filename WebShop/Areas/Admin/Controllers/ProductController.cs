@@ -12,19 +12,15 @@ using WebShop.ViewModels;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using WebShop.Utility;
 using WebShop.Model.Models;
+using Newtonsoft.Json;
 
 namespace WebShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class ProductController : Base
 	{
-       // private readonly IWebHostEnvironment _hostEnvironment;
 
-        public ProductController()
-        {
-          //  _hostEnvironment = hostEnvironment;
-        }
-
+      
     
         public async Task<IActionResult> Index()
         {
@@ -97,7 +93,7 @@ namespace WebShop.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                await wsPost<ReturnModel, ProductModel>(SystemUrls.Product.UpdateProduct, obj);
+                await wsPost<ReturnModel, ProductModel>(SystemUrls.Product.CreateProduct, obj);
                 return RedirectToAction(nameof(Index));
             }
             return View(obj);
@@ -129,10 +125,25 @@ namespace WebShop.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Upsert(ProductVM obj, IFormFile? file)
         {
-         
+            var MultipartFormDataContent = new MultipartFormDataContent();
             if (ModelState.IsValid)
             {
-                obj.Product.file = file;
+                byte[] data;
+                using (var br = new BinaryReader(file.OpenReadStream()))
+                {
+                    data = br.ReadBytes((int)file.OpenReadStream().Length);
+                }
+                ByteArrayContent bytes = new ByteArrayContent(data);
+                MultipartFormDataContent multiContent = new MultipartFormDataContent();
+                multiContent.Add(bytes, "file", file.FileName);
+                multiContent.Add(new StringContent(file.ToString()), "Id");
+                multiContent.Add(new StringContent(file.Name), "Name");
+
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(multiContent));
+
+                obj.Product.FileUpload = jsonContent;
+               //obj.Product.FileUpload = multiContent;
 
              /*   string wwwRootPath = _hostEnvironment.WebRootPath;
                 if(file!=null)

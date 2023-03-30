@@ -8,11 +8,26 @@ namespace WebShop.Utility
 {
     public class SystemUrls
     {
+        public class User
+        {
+            private const string pref = "User/";
+            public const string GetUserById = pref + "GetUserById";
+
+        }
         public class Order
         {
             private const string pref = "Order/";
             public const string GetOrders = pref + "GetOrders";
-            public const string FindUsers = pref + "FindUsers";
+            public const string GetOrderHeaderById = pref + "GetOrderHeaderById";
+            public const string GetOrderDetailsListById = pref + "GetOrderDetailsListById";
+            public const string UpdateStatus = pref + "UpdateStatus";
+            public const string UpdateOrderDetails = pref + "UpdateOrderDetails";
+            public const string ShipOrder = pref + "ShipOrder";
+            public const string CancelOrder = pref + "CancelOrder";
+            public const string UpdateStripePaymentID = pref + "UpdateStripePaymentID";
+
+            public const string CreateOrderHeader = pref + "CreateOrderHeader";
+
 
         }
         public class Category
@@ -60,6 +75,23 @@ namespace WebShop.Utility
             public const string DeleteProduct = pref + "DeleteProduct";
 
         }
+        public static class ShoppingCart
+        {
+            private const string pref = "Cart/";
+            public const string RemoveCarts = pref + "RemoveCarts";
+            public const string GetCartListByApplicationUserId = pref + "GetCartListByApplicationUserId";
+            public const string AddOrderDetails = pref + "AddOrderDetails";
+            public const string Minus = pref + "Minus";
+            public const string Plus = pref + "Plus";
+            public const string GetShoppingCartBySearchModel = pref + "GetShoppingCartBySearchModel";
+            public const string AddShoppingCart = pref + "AddShoppingCart";
+            public const string IncrementCount = pref + "IncrementCount";
+
+
+
+        }
+
+
 
     }
 }

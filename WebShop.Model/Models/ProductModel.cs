@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebShop.Model.Models;
 using WebShop.Models;
 
 namespace WebShop.Models
@@ -51,9 +52,11 @@ namespace WebShop.Models
         [ValidateNever]
         public CoverTypeModel CoverType { get; set; }
 
+     
+
         [NotMapped]
         [ValidateNever]
-        public IFormFile? file { get; set; }
+        public StringContent FileUpload { get; set; }
 
 
 

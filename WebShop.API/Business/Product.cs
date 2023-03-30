@@ -28,12 +28,12 @@ namespace WebShop.API.Business
 
         private void SaveProductFile(ProductModel model)
         {
-            string wwwRootPath = _hostEnvironment.WebRootPath;
-            if (model.file != null)
+            string wwwRootPath = _hostEnvironment.ContentRootPath;
+            if (model.FileUpload != null)
             {
                 string filename = Guid.NewGuid().ToString();
                 var uploads = Path.Combine(wwwRootPath, @"images\products");
-                var extension = Path.GetExtension(model.file.FileName);
+              //  var extension = Path.GetExtension(model.FileUpload.File.FileName);
 
                 if (model.ImageUrl != null)
                 {
@@ -44,11 +44,11 @@ namespace WebShop.API.Business
                     }
                 }
 
-                using (var fileStreams = new FileStream(Path.Combine(uploads, filename + extension), FileMode.Create))
-                {
-                    model.file.CopyTo(fileStreams);
-                }
-                model.ImageUrl = @"\images\products\" + filename + extension;
+              //  using (var fileStreams = new FileStream(Path.Combine(uploads, filename + extension), FileMode.Create))
+          //      {
+              //      model.file.CopyTo(fileStreams);
+            //    }
+            //    model.ImageUrl = @"\images\products\" + filename + extension;
             }
         }
 

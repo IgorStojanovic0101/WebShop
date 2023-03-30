@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Security.Claims;
 using WebShop.DataAccess.Repository.IRepository;
+using WebShop.Model.Models;
 using WebShop.Model.ViewModel;
 using WebShop.Models;
 using WebShop.Utility;
@@ -11,59 +12,58 @@ namespace WebShop.Areas.Consumer.Controllers
 {
     [Area("Consumer")]
 
-    public class HomeController : Controller
+    public class HomeController : Base
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IUnitOfWork _unitOfWork;
-        public HomeController(IUnitOfWork unitOfWork,ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            this._unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            IEnumerable<ProductModel> productList = _unitOfWork.Products.GetAll();
+            List<ProductModel> productList = await wsGet<List<ProductModel>>(SystemUrls.Product.GetProducts);  //_unitOfWork.Products.GetAll();
             return View(productList);
         }
-        public IActionResult Details(int productId)
+        public async Task<IActionResult> Details(int productId)
         {
             var cartObj = new ShoppingCart()
             {
 				Count = 1,
 				ProductId = productId,
-				Product = _unitOfWork.Products.GetFirstOrDefault(x => x.Id == productId)
-            };
+				Product = await wsPost<ProductModel, int>(SystemUrls.Product.GetProductById, productId)
+        };
             return View(cartObj);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public IActionResult Details(ShoppingCart shoppingCart)
+        public  async  Task<IActionResult> Details(ShoppingCart shoppingCart)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            shoppingCart.ApplicationUserId = claim.Value;            
-          
-            ShoppingCart cartFromDb = _unitOfWork.ShoppingCarts.GetFirstOrDefault(
-                u => u.ApplicationUserId == claim.Value && u.ProductId == shoppingCart.ProductId);
-
-      
-            if (cartFromDb == null)
+            shoppingCart.ApplicationUserId = claim.Value;
+            ShoppingCart cartFromDb = await wsPost<ShoppingCart, ShoppingCartSearchModel>(SystemUrls.ShoppingCart.GetShoppingCartBySearchModel,new ShoppingCartSearchModel
             {
+                ApplicationUserId = claim.Value,
+                ProductId = shoppingCart.ProductId
+            });
 
-                
-                _unitOfWork.ShoppingCarts.Add(shoppingCart);
+             if (cartFromDb == null)
+            {
+                await wsPost<ReturnModel, ShoppingCart>(SystemUrls.ShoppingCart.AddShoppingCart, shoppingCart);
 
-                _unitOfWork.Save();
-             //   HttpContext.Session.SetInt32(SD.SessionCart,
-                  //  _unitOfWork.ShoppingCarts.GetAll(u => u.ApplicationUserId == claim.Value).ToList().Count);
-            }
+             }
             else
             {
-                _unitOfWork.ShoppingCarts.IncrementCount(cartFromDb, shoppingCart.Count);
-                _unitOfWork.Save();
-            }
+                await wsPost<ReturnModel, ShoppingCartSearchModel>(SystemUrls.ShoppingCart.IncrementCount, new ShoppingCartSearchModel
+                {
+                    ApplicationUserId = claim.Value,
+                    ProductId = shoppingCart.ProductId,
+                    IncrementCount = shoppingCart.Count
+
+                });
+           }
 
 
             return RedirectToAction(nameof(Index));

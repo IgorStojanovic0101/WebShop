@@ -12,9 +12,9 @@ namespace WebShop.API.Business
         public CoverType() { }
 
 
-        public CoverType(IUnitOfWork unitOfWork)
+        public CoverType(List<object> objs)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = objs[0] as IUnitOfWork;
         }
 
         public List<CoverTypeModel> GetCoverTypes() => _unitOfWork.CoverTypes.GetAll().ToList();

@@ -9,6 +9,7 @@ using WebShop.Models;
 using WebShop.Utility;
 using WebShop.Model.ViewModel;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using WebShop.Model.Models;
 
 namespace WebShop.Areas.Admin.Controllers
 {
@@ -16,52 +17,32 @@ namespace WebShop.Areas.Admin.Controllers
 	[Authorize]
 	public class OrderController : Base
 	{
-		private readonly IUnitOfWork _unitOfWork;
-		private readonly IEmailSender _emailSender;
+		
 		[BindProperty]
 		public OrderVM OrderVM { get; set; }
-		public OrderController(IUnitOfWork unitOfWork,IEmailSender emailSender)
-		{
-			_unitOfWork = unitOfWork;
-			_emailSender = emailSender;
-		}
-
 		public IActionResult Index()
 		{
 			return View();
 		}
 
-		public IActionResult Details(int orderId)
+		public async Task<IActionResult> Details(int orderId)
 		{
 			OrderVM = new OrderVM()
 			{
-				OrderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == orderId),
-				OrderDetail = _unitOfWork.OrderDetails.GetAll(u => u.OrderId == orderId)
+				OrderHeader = await wsPost<OrderHeaderModel,int>(SystemUrls.Order.GetOrderHeaderById,orderId),// _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == orderId),
+				OrderDetail = await wsPost<IEnumerable<OrderDetailModel>,int>(SystemUrls.Order.GetOrderDetailsListById,orderId)// _unitOfWork.OrderDetails.GetAll(u => u.OrderId == orderId)
 			};
 			return View(OrderVM);
 		}
 		[HttpPost]
 		[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
 		[ValidateAntiForgeryToken]
-		public IActionResult UpdateOrderDetail()
+		public async Task<IActionResult> UpdateOrderDetail()
 		{
-			var orderHEaderFromDb = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
-			orderHEaderFromDb.Name = OrderVM.OrderHeader.Name;
-			orderHEaderFromDb.PhoneNumber = OrderVM.OrderHeader.PhoneNumber;
-			orderHEaderFromDb.StreetAddress = OrderVM.OrderHeader.StreetAddress;
-			orderHEaderFromDb.City = OrderVM.OrderHeader.City;
-			orderHEaderFromDb.State = OrderVM.OrderHeader.State;
-			orderHEaderFromDb.PostalCode = OrderVM.OrderHeader.PostalCode;
-			if (OrderVM.OrderHeader.Carrier != null)
-			{
-				orderHEaderFromDb.Carrier = OrderVM.OrderHeader.Carrier;
-			}
-			if (OrderVM.OrderHeader.TrackingNumber != null)
-			{
-				orderHEaderFromDb.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
-			}
-			_unitOfWork.OrderHeaders.Update(orderHEaderFromDb);
-			_unitOfWork.Save();
+
+			var orderHEaderFromDb = await wsPost<OrderHeaderModel, OrderVM>(SystemUrls.Order.UpdateOrderDetails, OrderVM);
+
+			
 			TempData["Success"] = "Order Details Updated Successfully.";
 			return RedirectToAction("Details", "Order", new { orderId = orderHEaderFromDb.Id });
 		}
@@ -69,30 +50,25 @@ namespace WebShop.Areas.Admin.Controllers
 		[HttpPost]
 		[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
 		[ValidateAntiForgeryToken]
-		public IActionResult StartProcessing()
+		public async Task<IActionResult> StartProcessing()
 		{
-			_unitOfWork.OrderHeaders.UpdateStatus(OrderVM.OrderHeader.Id, SD.StatusInProcess);
-			_unitOfWork.Save();
-			TempData["Success"] = "Order Status Updated Successfully.";
+			
+            await wsPost<ReturnModel, UpdateStatusModel>(SystemUrls.Order.UpdateStatus, new UpdateStatusModel() { OrderHeaderId = OrderVM.OrderHeader.Id,OrderStatus = SD.StatusInProcess });
+
+      		TempData["Success"] = "Order Status Updated Successfully.";
 			return RedirectToAction("Details", "Order", new { orderId = OrderVM.OrderHeader.Id });
 		}
 
 		[HttpPost]
 		[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
 		[ValidateAntiForgeryToken]
-		public IActionResult ShipOrder()
+		public async Task<IActionResult> ShipOrder()
 		{
-			var orderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
-			orderHeader.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
-			orderHeader.Carrier = OrderVM.OrderHeader.Carrier;
-			orderHeader.OrderStatus = SD.StatusShipped;
-			orderHeader.ShippingDate = DateTime.Now;
-			if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
-			{
-				orderHeader.PaymentDueDate = DateTime.Now.AddDays(30);
-			}
-			_unitOfWork.OrderHeaders.Update(orderHeader);
-			_unitOfWork.Save();
+
+            await wsPost<ReturnModel, OrderVM>(SystemUrls.Order.ShipOrder,OrderVM);
+
+
+		
 			TempData["Success"] = "Order Shipped Successfully.";
 			return RedirectToAction("Details", "Order", new { orderId = OrderVM.OrderHeader.Id });
 		}
@@ -100,10 +76,11 @@ namespace WebShop.Areas.Admin.Controllers
 		[HttpPost]
 		[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
 		[ValidateAntiForgeryToken]
-		public IActionResult CancelOrder()
+		public  async Task<IActionResult> CancelOrder()
 		{
-			var orderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
-			if (orderHeader.PaymentStatus == SD.PaymentStatusApproved)
+			var orderHeader = await wsPost<OrderHeaderModel, int>(SystemUrls.Order.GetOrderHeaderById, OrderVM.OrderHeader.Id); //_unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
+
+            if (orderHeader.PaymentStatus == SD.PaymentStatusApproved)
 			{
 				var options = new RefundCreateOptions
 				{
@@ -114,13 +91,15 @@ namespace WebShop.Areas.Admin.Controllers
 				var service = new RefundService();
 				Refund refund = service.Create(options);
 
-				_unitOfWork.OrderHeaders.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
+
+                await wsPost<ReturnModel, UpdateStatusModel>(SystemUrls.Order.UpdateStatus, new UpdateStatusModel() { OrderHeaderId = orderHeader.Id, OrderStatus = SD.StatusCancelled,PaymentStatus = SD.StatusRefunded });
+
 			}
 			else
 			{
-				_unitOfWork.OrderHeaders.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
+                await wsPost<ReturnModel, UpdateStatusModel>(SystemUrls.Order.UpdateStatus, new UpdateStatusModel() { OrderHeaderId = orderHeader.Id, OrderStatus = SD.StatusCancelled, PaymentStatus = SD.StatusCancelled });
+
 			}
-			_unitOfWork.Save();
 
 			TempData["Success"] = "Order Cancelled Successfully.";
 			return RedirectToAction("Details", "Order", new { orderId = OrderVM.OrderHeader.Id });
@@ -129,10 +108,10 @@ namespace WebShop.Areas.Admin.Controllers
 		[ActionName("Details")]
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Details_PAY_NOW()
+		public async Task<IActionResult> Details_PAY_NOW()
 		{
-			OrderVM.OrderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id);
-			OrderVM.OrderDetail = _unitOfWork.OrderDetails.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id);
+		OrderVM.OrderHeader = await wsPost<OrderHeaderModel, int>(SystemUrls.Order.GetOrderHeaderById, OrderVM.OrderHeader.Id);
+			OrderVM.OrderDetail = await wsPost<IEnumerable<OrderDetailModel>, int>(SystemUrls.Order.GetOrderDetailsListById, OrderVM.OrderHeader.Id);
 
 			//stripe settings 
 			var domain = "https://localhost:44320/";
@@ -171,25 +150,28 @@ namespace WebShop.Areas.Admin.Controllers
 
 			var service = new SessionService();
 			Session session = service.Create(options);
-			_unitOfWork.OrderHeaders.UpdateStripePaymentID(OrderVM.OrderHeader.Id, session.Id, session.PaymentIntentId);
-			_unitOfWork.Save();
-			Response.Headers.Add("Location", session.Url);
+
+			await wsPost<ReturnModel, UpdateStripePaymentModel>(SystemUrls.Order.UpdateStripePaymentID, new UpdateStripePaymentModel { Id = OrderVM.OrderHeader.Id ,SessionId = session.Id, PaymentIntentId = session.PaymentIntentId });
+
+            Response.Headers.Add("Location", session.Url);
 			return new StatusCodeResult(303);
 		}
 
 
-		public IActionResult PaymentConfirmation(int orderHeaderid)
+		public async Task<IActionResult> PaymentConfirmation(int orderHeaderid)
 		{
-			OrderHeaderModel orderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == orderHeaderid);
-			if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
+            //OrderHeaderModel orderHeader = _unitOfWork.OrderHeaders.GetFirstOrDefault(u => u.Id == orderHeaderid);
+            OrderHeaderModel orderHeader = await wsPost<OrderHeaderModel, int>(SystemUrls.Order.GetOrderHeaderById, orderHeaderid);
+
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
 			{
 				var service = new SessionService();
 				Session session = service.Get(orderHeader.SessionId);
 				//check the stripe status
 				if (session.PaymentStatus.ToLower() == "paid")
 				{
-					_unitOfWork.OrderHeaders.UpdateStatus(orderHeaderid, orderHeader.OrderStatus, SD.PaymentStatusApproved);
-					_unitOfWork.Save();
+
+                    await wsPost<ReturnModel, UpdateStatusModel>(SystemUrls.Order.UpdateStatus, new UpdateStatusModel() { OrderHeaderId = orderHeaderid, OrderStatus = orderHeader.OrderStatus, PaymentStatus = SD.PaymentStatusApproved });
 				}
 			}
 			return View(orderHeaderid);

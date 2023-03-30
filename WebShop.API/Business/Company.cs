@@ -12,9 +12,9 @@ namespace WebShop.API.Business
         public Company() { }
 
 
-        public Company(IUnitOfWork unitOfWork)
+        public Company(List<object> objs)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = objs[0] as IUnitOfWork;
         }
 
         public List<CompanyModel> GetCompanies() => _unitOfWork.Companies.GetAll().ToList();

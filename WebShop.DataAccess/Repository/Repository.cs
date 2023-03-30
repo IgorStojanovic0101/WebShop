@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using WebShop.Model.Models;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 
 namespace WebShop.DataAccess.Repository
 {
@@ -27,9 +29,9 @@ namespace WebShop.DataAccess.Repository
         }
 
         public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null)
-        {				
+        {
             var properties = typeof(T).GetProperties();
-            var includeList = properties.Where(p => p.PropertyType.IsClass && p.PropertyType != typeof(string)).ToArray();
+            var includeList = properties.Where(p => !Attribute.IsDefined(p, typeof(NotMappedAttribute)) && p.PropertyType.IsClass && p.PropertyType != typeof(string)).ToArray();
 
 			IQueryable<T> query = dbSet;
 			query = query.Where(filter ?? (x => true));
@@ -53,7 +55,7 @@ namespace WebShop.DataAccess.Repository
 
             if (query.Count() > 0)
             {
-                var includeList = typeof(T).GetProperties().Where(p => p.PropertyType.IsClass && p.PropertyType != typeof(string));
+                var includeList = typeof(T).GetProperties().Where(p => !Attribute.IsDefined(p, typeof(NotMappedAttribute))&& p.PropertyType.IsClass && p.PropertyType != typeof(string));
                 foreach (var propertyInfo in includeList)
                     query = query.Include(propertyInfo.Name);
             }

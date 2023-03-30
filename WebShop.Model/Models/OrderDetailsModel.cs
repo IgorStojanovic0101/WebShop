@@ -10,7 +10,7 @@ using WebShop.Models;
 
 namespace WebShop.Models
 {
-	public class OrderDetail
+	public class OrderDetailModel
 	{
 		public int Id { get; set; }
 		[Required]

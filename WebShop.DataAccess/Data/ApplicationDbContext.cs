@@ -24,7 +24,7 @@ namespace WebShop.Data
 
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
 
-        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<OrderDetailModel> OrderDetails { get; set; }
         public DbSet<OrderHeaderModel> OrderHeaders { get; set; }
 
         
