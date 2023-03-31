@@ -13,15 +13,20 @@ using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using WebShop.Utility;
 using WebShop.Model.Models;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Hosting;
 
 namespace WebShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class ProductController : Base
 	{
+        private readonly IWebHostEnvironment _hostEnvironment;
+        
+      public  ProductController(IWebHostEnvironment hostEnvironment)
+        {
+            _hostEnvironment = hostEnvironment;
+        }
 
-      
-    
         public async Task<IActionResult> Index()
         {
 
@@ -128,7 +133,7 @@ namespace WebShop.Areas.Admin.Controllers
             var MultipartFormDataContent = new MultipartFormDataContent();
             if (ModelState.IsValid)
             {
-                byte[] data;
+           /*     byte[] data;
                 using (var br = new BinaryReader(file.OpenReadStream()))
                 {
                     data = br.ReadBytes((int)file.OpenReadStream().Length);
@@ -142,10 +147,10 @@ namespace WebShop.Areas.Admin.Controllers
 
                 var jsonContent = new StringContent(JsonConvert.SerializeObject(multiContent));
 
-                obj.Product.FileUpload = jsonContent;
+                obj.Product.FileUpload = jsonContent;*/
                //obj.Product.FileUpload = multiContent;
 
-             /*   string wwwRootPath = _hostEnvironment.WebRootPath;
+               string wwwRootPath = _hostEnvironment.WebRootPath;
                 if(file!=null)
                 {
                     string filename = Guid.NewGuid().ToString();
@@ -167,7 +172,7 @@ namespace WebShop.Areas.Admin.Controllers
                     }
                     obj.Product.ImageUrl = @"\images\products\" + filename + extension;
                 }
-             */
+             
                 if (obj.Product.Id != 0)
                 {
                     await wsPost<ReturnModel, ProductModel>(SystemUrls.Product.UpdateProduct, obj.Product);
@@ -204,8 +209,21 @@ namespace WebShop.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
 
+            var model = await wsPost<ProductModel, int>(SystemUrls.Product.GetProductById, id.Value);
+
+
             var returnModel = await wsPost<ReturnModel, int>(SystemUrls.Product.DeleteProduct, id.Value);
-         
+
+
+            if (model.ImageUrl != null)
+            {
+                var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, model.ImageUrl.TrimStart('\\'));
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+            }
+
             return Json(new { success = true, messege = "Delete Sucessful" });
         }
 

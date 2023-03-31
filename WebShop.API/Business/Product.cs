@@ -97,14 +97,6 @@ namespace WebShop.API.Business
             {
                 var model = _unitOfWork.Products.GetFirstOrDefault(x => x.Id == id);
 
-                if (model.ImageUrl != null)
-                {
-                    var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, model.ImageUrl.TrimStart('\\'));
-                    if (System.IO.File.Exists(oldImagePath))
-                    {
-                        System.IO.File.Delete(oldImagePath);
-                    }
-                }
 
 
                 _unitOfWork.Products.Remove(model);
